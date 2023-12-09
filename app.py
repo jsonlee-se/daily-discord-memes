@@ -16,15 +16,18 @@ client = commands.Bot(command_prefix="/", intents=intents)
 @client.event
 async def on_ready(secret=modal.Secret.from_name("daily-discord-memes")):
     print(f'Logged in as {client.user.name}')
-    url = "https://reddit-meme.p.rapidapi.com/memes/trending"
+    url = "https://memes-from-reddit.p.rapidapi.com/memes/top"
+    querystring = {"limit":"3"}
     RAPIDAPI_KEY = os.environ.get('RAPIDAPI_KEY')
     headers = {
         "X-RapidAPI-Key": RAPIDAPI_KEY,
-        "X-RapidAPI-Host": "reddit-meme.p.rapidapi.com"
+        "X-RapidAPI-Host": "memes-from-reddit.p.rapidapi.com"
     }
 
-    response = requests.get(url, headers=headers)
-    memes = [response.json()[i]['url'] for i in range(len(response.json()))]
+    response = requests.get(url, headers=headers, params=querystring)
+    memes = [item['url'] for item in response.json()['data']]
+    # Only GIFS and Images
+    # memes = [item['url'] for item in response.json()['data'] if item.get('post_hint') == 'image']
     
     channel = client.get_channel(int(os.environ.get('CHANNEL_ID')))
     if channel is not None:
