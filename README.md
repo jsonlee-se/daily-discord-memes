@@ -43,11 +43,5 @@ Set the following environment variables in Modal:
 - Use the provided Modal stub to deploy the bot.
 - The bot will automatically post three memes in the specified channel every day.
 
-2. **Local Testing**:
-For local testing, run the `main` function. Ensure that the environment variables are set correctly in your local environment.
-
-## Contributions
-Contributions to the bot are welcome. Please follow standard coding practices and ensure that all pull requests are well-documented.
-
 ## License
 This project is licensed under the MIT License - see the LICENSE file for details.
