@@ -1,11 +1,11 @@
 # Daily Memes Discord Bot
 
 ## Overview
-This Discord bot, developed in Python, utilizes the `discord` and `requests` packages to post three memes daily in a selected channel. It fetches memes using an API endpoint from RapidAPI and is hosted on Modal, a cloud computing platform, where secrets and keys are securely stored.
+This Discord bot, developed in Python, utilizes the `discord` and `requests` packages to post three memes daily in a selected channel. It fetches memes using an API endpoint from Reddit and is hosted on Modal, a cloud computing platform, where secrets and keys are securely stored.
 
 ## Features
 - **Daily Meme Posting**: Automatically posts three memes every day to a designated Discord channel.
-- **RapidAPI Integration**: Uses the "memes-from-reddit" endpoint from RapidAPI for fresh meme content.
+- **Reddit API Integration**: Uses the Reddit endpoint for fresh meme content.
 - **Cloud Hosting**: Runs on Modal, ensuring reliable uptime and secure key management.
 
 ## Requirements
@@ -33,7 +33,6 @@ pip install discord.py requests
 
 4. **Environment Variables**:
 Set the following environment variables in Modal:
-- `RAPIDAPI_KEY`: Your RapidAPI key for the memes API.
 - `DISCORD_BOT_TOKEN`: Your Discord bot token.
 - `CHANNEL_ID`: The ID of the Discord channel where memes will be posted.
 
