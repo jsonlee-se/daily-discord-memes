@@ -35,12 +35,17 @@ pip install discord.py requests
 Set the following environment variables in Modal:
 - `DISCORD_BOT_TOKEN`: Your Discord bot token.
 - `CHANNEL_ID`: The ID of the Discord channel where memes will be posted.
+- `REDDIT_CLIENT_ID`: Your Reddit app client ID.
+- `REDDIT_CLIENT_SECRET`: Your Reddit app client secret.
+- `REDDIT_USERNAME`: Your Reddit account username.
+- `REDDIT_PASSWORD`: Your Reddit account password.
 
 ## Usage
 
 1. **Deploying the Bot**:
 - Use the provided Modal stub to deploy the bot.
 - The bot will automatically post three memes in the specified channel every day.
+- The subreddits list can be modified to change the source of memes.
 
 ## License
 This project is licensed under the MIT License - see the LICENSE file for details.
