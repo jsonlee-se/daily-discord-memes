@@ -11,7 +11,7 @@ stub = modal.Stub(name="daily_memes",image=modal.Image.debian_slim().pip_install
 intents = discord.Intents.all()
 intents.message_content = True
 client = commands.Bot(command_prefix="/", intents=intents)
-subreddits = ["Dankmemes", "okbuddyretard", "Animemes"]
+subreddits = ["Dankmemes", "okbuddyretard", "Animemes", "clevercomebacks", "meirl"]
 
 @client.event
 async def on_ready(secret=modal.Secret.from_name("daily-discord-memes")):
