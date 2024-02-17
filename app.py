@@ -11,7 +11,7 @@ stub = modal.Stub(name="daily_memes",image=modal.Image.debian_slim().pip_install
 intents = discord.Intents.all()
 intents.message_content = True
 client = commands.Bot(command_prefix="/", intents=intents)
-subreddits = ["Dankmemes", "okbuddyretard", "Animemes", "clevercomebacks", "meirl"]
+subreddits = ["Dankmemes", "okbuddyretard", "Animemes", "clevercomebacks", "meirl", "dndmemes","facepalm"]
 
 @client.event
 async def on_ready(secret=modal.Secret.from_name("daily-discord-memes")):
@@ -20,7 +20,11 @@ async def on_ready(secret=modal.Secret.from_name("daily-discord-memes")):
     
     for sub in subreddits:
         response = make_request(subreddit=sub)
-        urls = [url["data"]["url_overridden_by_dest"] for url in response]
+        try:
+            urls = [url["data"]["url_overridden_by_dest"] for url in response]
+        except:
+            print("Error getting url for subreddit: " + sub)
+            continue
         channel = client.get_channel(CHANNEL_ID)
         if channel is not None:
             for url in urls:
