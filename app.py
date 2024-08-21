@@ -6,7 +6,7 @@ from discord.ext import commands
 
 import modal
 
-stub = modal.Stub(name="daily_memes",image=modal.Image.debian_slim().pip_install("discord.py", "requests"))
+app = modal.App(name="daily_memes",image=modal.Image.debian_slim().pip_install("discord.py", "requests"))
 
 intents = discord.Intents.all()
 intents.message_content = True
@@ -63,11 +63,11 @@ def make_request(subreddit, secret=modal.Secret.from_name("daily-discord-memes")
         print(response.text)
         return None
 
-@stub.function(secret=modal.Secret.from_name("daily-discord-memes"),schedule=modal.Period(days=1))
+@app.function(secret=modal.Secret.from_name("daily-discord-memes"),schedule=modal.Period(days=1))
 def run_bot():
     client.run(os.environ["DISCORD_BOT_TOKEN"])
 
 
-@stub.local_entrypoint()
+@app.local_entrypoint()
 def main():
     run_bot.remote()
