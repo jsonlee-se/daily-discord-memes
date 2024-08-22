@@ -63,7 +63,7 @@ def make_request(subreddit, secret=modal.Secret.from_name("daily-discord-memes")
         print(response.text)
         return None
 
-@app.function(secret=modal.Secret.from_name("daily-discord-memes"),schedule=modal.Period(days=1))
+@app.function(secrets=[modal.Secret.from_name("daily-discord-memes")],schedule=modal.Period(days=1))
 def run_bot():
     client.run(os.environ["DISCORD_BOT_TOKEN"])
 
