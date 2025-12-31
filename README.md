@@ -1,51 +1,137 @@
-# Daily Memes Discord Bot
+# Daily Memes Discord Bot (AWS Lambda)
 
 ## Overview
-This Discord bot, developed in Python, utilizes the `discord` and `requests` packages to post three memes daily in a selected channel. It fetches memes using an API endpoint from Reddit and is hosted on Modal, a cloud computing platform, where secrets and keys are securely stored.
+
+This project is a **serverless Discord meme poster** written in Python and hosted on **AWS Lambda**.
+It posts memes to Discord on a schedule using **Discord webhooks**, pulls content from Reddit via **PRAW**, and stores configuration and secrets using **AWS-native services**.
+
+This is no longer a long-lived Discord bot process — it is a **stateless, scheduled job**, which makes it cheaper, simpler, and more reliable.
+
+---
+
+## Architecture
+
+```
+EventBridge (schedule)
+        ↓
+     AWS Lambda
+        ↓
+   Reddit API (via PRAW)
+        ↓
+   Discord Webhook
+```
+
+### AWS Services Used
+
+* **AWS Lambda** — executes the meme posting job
+* **EventBridge Scheduler** — triggers the Lambda on a schedule
+* **AWS Secrets Manager** — stores API credentials and secrets
+* **AWS SSM Parameter Store** — stores non-secret configuration (e.g. subreddit list)
+
+---
 
 ## Features
-- **Daily Meme Posting**: Automatically posts three memes every day to a designated Discord channel.
-- **Reddit API Integration**: Uses the Reddit endpoint for fresh meme content.
-- **Cloud Hosting**: Runs on Modal, ensuring reliable uptime and secure key management.
+
+* **Scheduled Meme Posting**
+  Posts memes automatically based on an EventBridge schedule.
+
+* **Reddit Integration via PRAW**
+  Uses Reddit’s official Python API wrapper with OAuth (refresh token flow).
+
+* **Discord Webhooks (No Bot Gateway)**
+  Messages are sent via webhooks — no persistent Discord connection, no intents, no event loop.
+
+* **Fully Serverless**
+  No EC2 instances, no containers, no always-on processes.
+
+---
 
 ## Requirements
-- Python 3.8 or later
-- `discord.py` package
-- `requests` package
-- Modal account for hosting and key management
-- RapidAPI key for meme API access
-- Discord bot token
 
-## Setup Instructions
+* Python 3.9+ (I used 3.12)
+* `praw`
+* `requests`
+* AWS account with access to:
 
-1. **Install Dependencies**:
-   Ensure Python is installed on your system. Then, install the required packages:
+  * Lambda
+  * EventBridge
+  * Secrets Manager
+  * SSM Parameter Store
+
+---
+
+## Configuration
+
+### Secrets (AWS Secrets Manager)
+
+Stored as a single JSON secret:
+
+```json
+{
+  "DISCORD_WEBHOOK_URL": "https://discord.com/api/webhooks/...",
+  "REDDIT_CLIENT_ID": "...",
+  "REDDIT_CLIENT_SECRET": "...",
+  "REDDIT_REFRESH_TOKEN": "..."
+}
 ```
-pip install discord.py requests
+
+These values are fetched at runtime by the Lambda function.
+
+---
+
+### Parameters (SSM Parameter Store)
+
+Non-secret configuration is stored separately.
+
+Example:
+
+* `/daily-memes/subreddits` (Type: `StringList`)
+
+Value:
+
 ```
-2. **Modal Setup**:
-- Sign up for a Modal account and set up a new project.
-- Store your RapidAPI key and Discord bot token as secrets in Modal.
+Dankmemes,ProgrammerHumor,memes
+```
 
-3. **Discord Bot Setup**:
-- Create a Discord bot on the Discord developer portal.
-- Add the bot to your server and note down the bot token.
+This allows updating subreddit sources **without redeploying** the Lambda function.
 
-4. **Environment Variables**:
-Set the following environment variables in Modal:
-- `DISCORD_BOT_TOKEN`: Your Discord bot token.
-- `CHANNEL_ID`: The ID of the Discord channel where memes will be posted.
-- `REDDIT_CLIENT_ID`: Your Reddit app client ID.
-- `REDDIT_CLIENT_SECRET`: Your Reddit app client secret.
-- `REDDIT_USERNAME`: Your Reddit account username.
-- `REDDIT_PASSWORD`: Your Reddit account password.
+---
 
-## Usage
+## Discord Setup (Webhook-Based)
 
-1. **Deploying the Bot**:
-- Use the provided Modal stub to deploy the bot.
-- The bot will automatically post three memes in the specified channel every day.
-- The subreddits list can be modified to change the source of memes.
+1. Open Discord channel settings
+2. Create a webhook
+3. Copy the webhook URL
+4. Store it in **AWS Secrets Manager**
 
-## License
-This project is licensed under the MIT License - see the LICENSE file for details.
+No Discord bot user or gateway connection is required.
+
+---
+
+## Reddit Setup
+
+* Existing Reddit **script app** is used
+* OAuth authorization is done once to obtain a **refresh token**
+* The Lambda function uses the refresh token to request short-lived access tokens via PRAW
+
+Username/password authentication is **not used**.
+
+---
+
+## Deployment
+
+* Deploy the Lambda function with its IAM execution role
+* Grant the role access to:
+
+  * `secretsmanager:GetSecretValue`
+  * `ssm:GetParameter`
+* Configure an EventBridge schedule to invoke the function
+
+---
+
+## Why This Design
+
+* **Lambda over long-lived bots**: avoids timeouts, gateway connections, and idle compute
+* **Webhooks over discord.py**: simpler, faster, and more reliable for scheduled posting
+* **SSM + Secrets Manager split**: clean separation of config vs credentials
+* **PRAW over raw HTTP**: less OAuth pain, more stability
